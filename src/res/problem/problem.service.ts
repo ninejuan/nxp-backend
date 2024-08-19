@@ -14,6 +14,28 @@ config(); const env = process.env;
 
 @Injectable()
 export class ProblemService {
+  private rankThresholds = [
+    { rank: rankPoint.none, minScore: 0 },
+    { rank: rankPoint.Bronze4, minScore: 1 },
+    { rank: rankPoint.Bronze3, minScore: 71 },
+    { rank: rankPoint.Bronze2, minScore: 141 },
+    { rank: rankPoint.Bronze1, minScore: 281 },
+    { rank: rankPoint.Silver3, minScore: 351 },
+    { rank: rankPoint.Silver2, minScore: 431 },
+    { rank: rankPoint.Silver1, minScore: 511 },
+    { rank: rankPoint.Gold3, minScore: 591 },
+    { rank: rankPoint.Gold2, minScore: 681 },
+    { rank: rankPoint.Gold1, minScore: 771 },
+    { rank: rankPoint.Platinum3, minScore: 861 },
+    { rank: rankPoint.Platinum2, minScore: 961 },
+    { rank: rankPoint.Platinum1, minScore: 1071 },
+    { rank: rankPoint.Diamond3, minScore: 1181 },
+    { rank: rankPoint.Diamond2, minScore: 1301 },
+    { rank: rankPoint.Diamond1, minScore: 1451 },
+    { rank: rankPoint.Ace, minScore: 1601 },
+    { rank: rankPoint.Master, minScore: 2201 }
+  ];
+
   async createProblem(createProblemDto: ProblemDto, userid: string) {
     const problemNumber = await newProblemNumber();
     const newPb = await new problemsSchema({
@@ -83,10 +105,12 @@ export class ProblemService {
     const probNum = problemId.toString();
     switch (fetchReq.json().result) {
       case "정답입니다":
+        const problem = await problemsSchema.findOne({ problemNumber: problemId });
         if (probNum in user.wrong_problems) user.wrong_problems.splice(user.wrong_problems.indexOf(probNum), 1);
         if (!(probNum in user.solved_problems)) user.solved_problems.unshift(probNum);
         await user.save();
         await this.updateStreak(userid);
+        await this.setRank(rankPoint[problem.rankPoint], userid);
         break;
       case "틀렸습니다":
         if (!(probNum in user.wrong_problems)) user.wrong_problems.unshift(probNum);
@@ -163,5 +187,18 @@ export class ProblemService {
   async getRecentProblems(count: number) {
     const problems = await problemsSchema.find().sort({ createdAt: -1 }).limit(50);
     return problems;
+  }
+
+  async setRank(score: number, userid: string) {
+    for (const threshold of this.rankThresholds) {
+      if (score >= threshold.minScore) {
+        const user = await userSchema.findOne({ nxpid: userid });
+        user.rankPoint = score;
+        user.rank = rankPoint[threshold.rank];
+        await user.save();
+        return true;
+      }
+    }
+    return false; // default case
   }
 }

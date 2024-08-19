@@ -14,7 +14,7 @@ async function bootstrap() {
   // app.useLogger(winstonLogger);
   app.setGlobalPrefix(env.GLOBAL_PREFIX);
   app.enableCors({
-    origin: '*',
+    origin: 'http://localhost:5173',
     credentials: true,
     exposedHeaders: ['pggtkn', "Authorization"]
   });
