@@ -158,8 +158,8 @@ export class ProblemController {
     type: "Number"
   })
   @Get(':id')
-  async getProblem(@Param() pno: number) {
-    return this.problemService.getProblem(pno);
+  async getProblem(@Param() pno: Number) {
+    return this.problemService.getProblem(pno );
   }
 
   @ApiOperation({

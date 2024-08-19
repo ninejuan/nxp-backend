@@ -21,6 +21,8 @@ const problemSchema = new mongo.Schema({
     testcases: [ testcaseSchema ],
     answerCode: { type: String, default: "" },
     userRate: [ userRateSchema ],
+    submit_count: { type: Number, default: 0},
+    solved_count: { type: String, required: true },
     createdAt: { type: Number, default: Date.now() }
 });
 

@@ -53,7 +53,7 @@ export class ProblemService {
     }
   }
 
-  async getProblem(no: number) {
+  async getProblem(no: Number) {
     let problem = await problemsSchema.findOne({ problemNumber: no });
     if (!problem) problem = null;
     return problem;
@@ -103,14 +103,16 @@ export class ProblemService {
     });
     const user = await userSchema.findOne({ nxpid: userid });
     const probNum = problemId.toString();
+    const problem = await problemsSchema.findOne({ problemNumber: problemId });
+    problem.submit_count = problem.submit_count + 1;
     switch (fetchReq.json().result) {
       case "정답입니다":
-        const problem = await problemsSchema.findOne({ problemNumber: problemId });
         if (probNum in user.wrong_problems) user.wrong_problems.splice(user.wrong_problems.indexOf(probNum), 1);
         if (!(probNum in user.solved_problems)) user.solved_problems.unshift(probNum);
         await user.save();
         await this.updateStreak(userid);
         await this.setRank(rankPoint[problem.rankPoint], userid);
+        problem.solved_count = problem.solved_count + 1;
         break;
       case "틀렸습니다":
         if (!(probNum in user.wrong_problems)) user.wrong_problems.unshift(probNum);
@@ -118,7 +120,8 @@ export class ProblemService {
         break;
       default:
         break;
-    }
+    };
+    await problem.save();
     return {
       result: true ? fetchReq.json().result == "정답입니다" : false,
       message: fetchReq.json().result
