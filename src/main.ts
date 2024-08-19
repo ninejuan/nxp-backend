@@ -23,16 +23,7 @@ async function bootstrap() {
     exposedHeaders: ['pggtkn', "Authorization"]
   });
   app.use(helmet({
-    contentSecurityPolicy: {
-      directives: {
-        defaultSrc: ["'self'"],
-        imgSrc: ["'self'", 'http://localhost:5173', 'https://nxp.octive.net', 'https://nxp-judger.octive.net', 'data:'],
-        scriptSrc: ["'self'", 'http://localhost:5173', 'https://nxp.octive.net', 'https://nxp-judger.octive.net'],
-        styleSrc: ["'self'", 'http://localhost:5173', 'https://nxp.octive.net', 'https://nxp-judger.octive.net'],
-        connectSrc: ["'self'", 'http://localhost:5173', 'https://nxp.octive.net', 'https://nxp-judger.octive.net'],
-          frameSrc: ["'self'", 'https://nxp.octive.net', 'https://nxp-judger.octive.net'],
-      },
-    },
+    contentSecurityPolicy: false
   }));
   // setDailyQuest();
   await linkToDatabase();

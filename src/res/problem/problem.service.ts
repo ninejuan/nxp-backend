@@ -10,6 +10,7 @@ import { RateDto } from './dto/rate.dto';
 import rankPoint from 'src/enums/rankPoint.enum';
 import { UserStreak, IUserStreak } from '../../models/streak.schema';
 import questSchema from 'src/models/quest.schema';
+import { SearchProblemDto } from './dto/searchProblem.dto';
 config(); const env = process.env;
 
 @Injectable()
@@ -57,6 +58,21 @@ export class ProblemService {
     let problem = await problemsSchema.findOne({ problemNumber: no });
     if (!problem) problem = null;
     return problem;
+  }
+
+  async searchProblem(body: SearchProblemDto) {
+    switch (body.mode) {
+      case 'recent':
+        return await this.getRecentProblems(50);
+      case 'query':
+        return await problemsSchema.find({
+          subject: { $regex: body.query ?? null, $options: 'i' } // 대소문자를 구분하지 않는 부분 검색
+        }).limit(50);
+      default:
+        return await problemsSchema.find({
+          rankPoint: { $regex: body.mode, $options: 'i' }
+        }).limit(50);
+    }
   }
 
   async editProblem(probNum: number, jureuk: ProblemDto, userid: string) {

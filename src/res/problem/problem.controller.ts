@@ -6,6 +6,7 @@ import { SolutionDto } from './dto/solution.dto';
 import { RateDto } from './dto/rate.dto';
 import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { UserStreak, IUserStreak } from '../../models/streak.schema';
+import { SearchProblemDto } from './dto/searchProblem.dto';
 
 @ApiTags("Problem")
 @Controller('problem')
@@ -163,8 +164,8 @@ export class ProblemController {
   }
 
   @Get('search')
-  async searchProblem() {
-
+  async searchProblem(@Body() body: SearchProblemDto) {
+    return this.problemService.searchProblem(body);
   }
 
   @ApiOperation({
