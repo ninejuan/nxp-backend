@@ -4,7 +4,11 @@ import { AppModule } from './app.module';
 import { linkToDatabase } from './utils/db.util';
 import { winstonLogger } from './utils/winston.util';
 import { setupSwagger } from './utils/swagger.util';
-import { config } from 'dotenv'; config();
+import { config } from 'dotenv';
+import helmet from 'helmet';
+import { setDailyQuest } from './cron/quest.cron';
+config();
+
 
 const env = process.env;
 const logger = new Logger('NXP-backend');
@@ -14,10 +18,23 @@ async function bootstrap() {
   // app.useLogger(winstonLogger);
   app.setGlobalPrefix(env.GLOBAL_PREFIX);
   app.enableCors({
-    origin: 'http://localhost:5173',
+    origin: ['http://localhost:5173', 'https://nxp-judger.octive.net'],
     credentials: true,
     exposedHeaders: ['pggtkn', "Authorization"]
   });
+  app.use(helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        imgSrc: ["'self'", 'http://localhost:5173', 'https://nxp.octive.net', 'https://nxp-judger.octive.net', 'data:'],
+        scriptSrc: ["'self'", 'http://localhost:5173', 'https://nxp.octive.net', 'https://nxp-judger.octive.net'],
+        styleSrc: ["'self'", 'http://localhost:5173', 'https://nxp.octive.net', 'https://nxp-judger.octive.net'],
+        connectSrc: ["'self'", 'http://localhost:5173', 'https://nxp.octive.net', 'https://nxp-judger.octive.net'],
+          frameSrc: ["'self'", 'https://nxp.octive.net', 'https://nxp-judger.octive.net'],
+      },
+    },
+  }));
+  // setDailyQuest();
   await linkToDatabase();
   if (env.MODE == "DEV") {
     try {

@@ -18,15 +18,16 @@ export class UploadViewController {
     description: "사진"
   })
   @ApiParam({
-    name: "사진 파일명",
+    name: "name",
     example: "ninejuan-profile-hjifhfdsv.png",
     description: "다운로드할 사진의w 파일명입니다.",
     type: "String"
   })
   @Get('/:name')
   async getImage(@Param('name') name: string, @Res() res: Response) {
+    res.removeHeader('Content-Security-Policy');
     const filePath = join(process.cwd(), 'upload/', name);
-    const file = this.uploadService.getFile(filePath);
+    const file = this.uploadService.getFile(filePath, res);
     file.getStream().pipe(res);
   }
 }
