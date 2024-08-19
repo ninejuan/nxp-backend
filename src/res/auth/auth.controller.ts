@@ -130,7 +130,6 @@ export class AuthController {
     required: true
   })
   @Post('profile/:id')
-  @UseGuards(JwtAuthGuard)
   async profile(@Param('id') id: string) {
     return this.authService.profile(id);
   }

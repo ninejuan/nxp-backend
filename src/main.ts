@@ -12,6 +12,12 @@ const logger = new Logger('NXP-backend');
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   // app.useLogger(winstonLogger);
+  app.setGlobalPrefix(env.GLOBAL_PREFIX);
+  app.enableCors({
+    origin: '*',
+    credentials: true,
+    exposedHeaders: ['pggtkn', "Authorization"]
+  });
   await linkToDatabase();
   if (env.MODE == "DEV") {
     try {
